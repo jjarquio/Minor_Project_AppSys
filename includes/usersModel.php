@@ -1,53 +1,52 @@
 <?php
 
-$base = "/RasiComputers";
-date_default_timezone_set("Asia/Manila");
-require_once("DBConnection.php");
-$_ERROR = array();
+class Users extends DBConnection {
+    function getUsers(){
+        $sql = "SELECT * FROM users";
+        $result = $this->conn->query($sql);
+        for($x = 0; $row = $result->fetch_object(); $x++)
+            $data[$x] = $row;
+        return $data;
+    }
+    function getUser($uid){
+        $sql = "SELECT user_name, user_type FROM users WHERE user_id = $uid";
+        $result = $this->conn->query($sql);
+        return $result->fetch_object();
+    }
 
-if($_SERVER['PHP_SELF'] != $base."/login.php"){
-    if(!isLogged())
-        header("location: login.php?redirect=".$_SERVER['REQUEST_URI']);
-}else if(isLogged()) header("location: $base");
+    function setUser($data){
+        $sql = "UPDATE users SET ";
+        $x = 0;
+        if(isset($data['name'])){
+            if($x == 0) ++$x;
+            $sql .= "user_name = \"".$data['name']."\"";
+        }
+        if(isset($data['passcode'])){
+            if($x) $sql .= ',';
+            if($x == 0) ++$x;
+            $sql .= "passcode = \"".$data['passcode']."\"";
+        }
+        if(isset($data['type'])){
+            if($x) $sql .= ',';
+            if($x == 0) ++$x;
+            $sql .= "user_type = ".$data['type'];
+        }
+        $sql .= " WHERE user_id = ".$data['id'];
+        $this->conn->query($sql);
+    }
 
-function isPost($name, $value){
-	if(!isset($_POST[$name])) return;
-	if($_POST[$name] == $value) return 1;
-}
+    function add($data){
+        $sql = "INSERT INTO users 
+        (user_name, passcode, user_type) values
+        (\"".$data['name']."\", \"".$data['passcode']."\", ".$data['type'].")";
+        $this->conn->query($sql);
+    }
 
-function retainValue($name){
-	if(isset($_POST[$name])) if($_POST[$name] != '')
-			echo "value=\"".$_POST[$name]."\"";
-}
-
-function isLogged(){
-    $login = new DBConnection();
-    if(!isset($_COOKIE['datas']) || !isset($_COOKIE['datar'])) return;
-    $data['userid'] = $_COOKIE['datas'];
-    $data['passcode'] = $_COOKIE['datar'];
-    if($result = $login->verify($data)) return 1;
-    header("location: ".$GLOBALS['base']."/logout.php");
-}
-
-function htmlspace($str){
-    $str = htmlspecialchars($str);
-    $newStr = '';
-    for($x = 0; $x < strlen($str); $x++)
-        if($str{$x} == ' ')
-            $newStr .= "&nbsp;";
-        else $newStr .= $str{$x};
-    return $newStr;
-}
-
-function error($index, $str){
-    $GLOBALS['_ERROR'][$index] = $str;
-}
-
-function displayerror($str){
-    if(isset($GLOBALS['_ERROR'][$str]))
-        echo "<p class=\"error\"><span>".$GLOBALS['_ERROR'][$str]."</span></p>";
-    else return;
-    return 1;
+    function delete($uid){
+        $sql = "DELETE FROM users WHERE user_id = $uid";
+        $this->conn->query($sql);
+    }
 }
 
 ?>
+

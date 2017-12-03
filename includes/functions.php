@@ -1,6 +1,6 @@
 <?php
 
-$base = "/RasiComputers";
+$base = "/Minor_Project_AppSys";
 date_default_timezone_set("Asia/Manila");
 require_once("DBConnection.php");
 $_ERROR = array();

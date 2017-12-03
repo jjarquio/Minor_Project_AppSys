@@ -2,6 +2,6 @@
 
 setcookie('datas', '', time() - (86400 * 30));
 setcookie('datar', '', time() - (86400 * 30));
-header("location: /login.php");
+header("location:/Minor_Project_AppSys");
 
 ?>
