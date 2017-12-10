@@ -1,38 +1,70 @@
 <?php
 
-require_once("salesModel.php");
-$db = new Sales();
-$format = "Y-m-d H:i:s";
+class Sales extends DBConnection {
+    function report(){
+        $between = (object) $_GET;
+        $sql = "
+            SELECT
+                s.sale_id AS id,
+                sale_time AS time,
+                user_name AS name,
+                sale
+            FROM (
+                SELECT *
+                FROM sale
+                ) AS s
+            JOIN (
+                SELECT user_id, user_name
+                FROM users
+                ) AS u
+            ON s.sale_cashier = u.user_id
+            JOIN (
+                SELECT 
+                    sale_id,
+                    SUM(prod_qty * prod_price) AS sale
+                FROM sale_item
+                GROUP BY sale_id
+                ) AS si
+            ON s.sale_id = si.sale_id
+            WHERE sale_time BETWEEN '$between->from' AND '$between->to'
+            ORDER BY sale_time
+        ";
+        $result = $this->conn->query($sql);
+        for($x = 0; $row = $result->fetch_object(); $x++)
+            $data[$x] = $row;
+        return $data;
+    }
 
-if(isset($_GET['report'])
-    && isset($_GET['from'])
-    && isset($_GET['to'])
-    && $_GET['report'] == 'Go'
-    && DateTime::createFromFormat($format, $_GET['from'])
-    && DateTime::createFromFormat($format, $_GET['to'])){
-    $data = $db->report();
-    $file = 'report.csv';
-    $myfile = fopen($file, "w");
-    fwrite($myfile, "OR#, CASHIER_NAME, DATETIME, SALE\n");
-    foreach($data as $item)
-        fwrite($myfile, "$item->id, $item->name, $item->time, $item->sale\n");
-    fclose($myfile);
-    echo "<script>window.open('report.csv')</script>";
-    echo "<script>window.location = \"sales.php\"</script>";
+    function get($orderby){
+        $sql = "
+            SELECT
+                s.sale_id AS id,
+                sale_time AS time,
+                user_name AS name,
+                sale
+            FROM (
+                SELECT *
+                FROM sale
+                ) AS s
+            JOIN (
+                SELECT user_id, user_name
+                FROM users
+                ) AS u
+            ON s.sale_cashier = u.user_id
+            JOIN (
+                SELECT 
+                    sale_id,
+                    SUM(prod_qty * prod_price) AS sale
+                FROM sale_item
+                GROUP BY sale_id
+                ) AS si
+            ON s.sale_id = si.sale_id
+            ORDER BY $orderby
+        ";
+        $result = $this->conn->query($sql);
+        echo $this->conn->error;
+        for($x = 0; $row = $result->fetch_object(); $x++)
+            $data[$x] = $row;
+        return $data;
+    }
 }
-
-function sortSales(){
-    if(!isset($_GET["by"]) || !isset($_GET["order"]))
-        return $GLOBALS['db']->get("id");
-    $by = array("id", "cust", "time", "name", "sale");
-    $order = array("ASC", "DESC");
-    if(!in_array($_GET["by"], $by) 
-        || !in_array($_GET["order"], $order))
-        return;
-    return $GLOBALS['db']->get($_GET["by"].' '.$_GET["order"]);
-}
-
-function reload(){
-    header("location: ".$GLOBALS['base']."/sales.php");
-}
-

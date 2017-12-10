@@ -5,6 +5,7 @@ require_once("includes/loginFunctions.php");
 
 ?>
 <div id="login-form">
+	<img src="src/rasilogo.png" alt="rasilogo">
 	<?php displayerror('SIGNERROR'); ?>
     <form method="post">
     <div><input type="text" name="userid" placeholder="User ID">

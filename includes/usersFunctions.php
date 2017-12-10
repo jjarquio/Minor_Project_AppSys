@@ -50,7 +50,8 @@ function addUser(){
 ?>
 <form method="post">
     <input type="text" name="name" placeholder="Name"<?php echo (isset($_POST['name'])? " value=\"".$_POST['name'].'"': null) ?>>
-    <input type="password" name="passcode" placeholder="Passcode">
+    <input type="password" name="passcode" id="passcode" placeholder="Passcode" required>
+    <input type="password" name="passcode2" id="passcode2" placeholder="Re Type Passcode" required>
     <select name="type">
         <option value="1"<?php 
             if(isset($_POST['type']))
@@ -63,8 +64,9 @@ function addUser(){
                     echo " selected";
         ?>>Manager</option>
     </select>
-    <input type="submit" name="add" value="Add">
+    <input type="submit" name="add" value="Add" onclick="return Validate()" >
 </form>
+    
 <?php
 }
 
@@ -88,7 +90,8 @@ function editUser(){
 ?>
 <form method="post">
     <input type="text" name="name" placeholder="Name" value="<?php echo $data->user_name; ?>">
-    <input type="password" name="passcode" placeholder="Passcode">
+    <input type="password" name="passcode" id="passcode" placeholder="Passcode" required>
+    <input type="password" name="passcode2" id="passcode2" placeholder="Re Type Passcode" required>
 <?php if($_GET['edit'] != $_COOKIE['datas']): ?>
     <select name="type">
         <option value="1"<?php
@@ -101,7 +104,7 @@ function editUser(){
         ?>>Manager</option>
     </select>
 <?php endif; ?>
-    <input type="submit" name="save" value="Save">
+    <input type="submit" name="save" value="Save" onclick="return Validate()">
 </form>
 <?php
 }
@@ -139,3 +142,14 @@ function reload(){
 }
 
 ?>
+<script type="text/javascript">
+    function Validate() {
+        var password = document.getElementById("passcode").value;
+        var confirmPassword = document.getElementById("passcode2").value;
+        if (password != confirmPassword) {
+            alert("Passwords do not match.");
+            return false;
+        }
+        return true;
+    }
+</script>

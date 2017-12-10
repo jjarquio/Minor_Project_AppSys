@@ -18,7 +18,7 @@ $order = array(
 <div id="sales-wrapper" class="wrapper">
 <div id="sales_left">
 
-<h2>Sales</h2>
+<h2><i class="fa fa-money" id="sales_center" aria-hidden="true"></i> Sales</h2>
 <div id="sales_mar">
 <br></br>
 <form>
